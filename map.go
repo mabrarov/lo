@@ -306,8 +306,8 @@ func MapValues[K comparable, V, R any](in map[K]V, iteratee func(value V, key K)
 func MapEntries[K1 comparable, V1 any, K2 comparable, V2 any](in map[K1]V1, iteratee func(key K1, value V1) (K2, V2)) map[K2]V2 {
 	result := make(map[K2]V2, len(in))
 
-	for k1 := range in {
-		k2, v2 := iteratee(k1, in[k1])
+	for k1, v1 := range in {
+		k2, v2 := iteratee(k1, v1)
 		result[k2] = v2
 	}
 
