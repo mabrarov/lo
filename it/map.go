@@ -10,8 +10,8 @@ import (
 // Keys creates a sequence of the map keys.
 func Keys[K comparable, V any](in ...map[K]V) iter.Seq[K] {
 	return func(yield func(K) bool) {
-		for i := range in {
-			for k := range in[i] {
+		for _, m := range in {
+			for k := range m {
 				if !yield(k) {
 					return
 				}
@@ -27,8 +27,8 @@ func UniqKeys[K comparable, V any](in ...map[K]V) iter.Seq[K] {
 	return func(yield func(K) bool) {
 		seen := make(map[K]struct{})
 
-		for i := range in {
-			for k := range in[i] {
+		for _, m := range in {
+			for k := range m {
 				if _, ok := seen[k]; !ok {
 					if !yield(k) {
 						return
@@ -43,8 +43,8 @@ func UniqKeys[K comparable, V any](in ...map[K]V) iter.Seq[K] {
 // Values creates a sequence of the map values.
 func Values[K comparable, V any](in ...map[K]V) iter.Seq[V] {
 	return func(yield func(V) bool) {
-		for i := range in {
-			for _, v := range in[i] {
+		for _, m := range in {
+			for _, v := range m {
 				if !yield(v) {
 					return
 				}
@@ -60,8 +60,8 @@ func UniqValues[K, V comparable](in ...map[K]V) iter.Seq[V] {
 	return func(yield func(V) bool) {
 		seen := make(map[V]struct{})
 
-		for i := range in {
-			for _, v := range in[i] {
+		for _, m := range in {
+			for _, v := range m {
 				if _, ok := seen[v]; !ok {
 					if !yield(v) {
 						return
@@ -122,8 +122,8 @@ func Invert[K, V comparable](in iter.Seq2[K, V]) iter.Seq2[V, K] {
 func Assign[K comparable, V any, Map ~map[K]V](maps ...iter.Seq[Map]) Map {
 	out := make(Map)
 
-	for i := range maps {
-		for item := range maps[i] {
+	for _, m := range maps {
+		for item := range m {
 			for k, v := range item {
 				out[k] = v
 			}

@@ -4,13 +4,13 @@ package lo
 // Play: https://go.dev/play/p/Uu11fHASqrU
 func Keys[K comparable, V any](in ...map[K]V) []K {
 	size := 0
-	for i := range in {
-		size += len(in[i])
+	for _, m := range in {
+		size += len(m)
 	}
 	result := make([]K, 0, size)
 
-	for i := range in {
-		for k := range in[i] {
+	for _, m := range in {
+		for k := range m {
 			result = append(result, k)
 		}
 	}
@@ -22,15 +22,15 @@ func Keys[K comparable, V any](in ...map[K]V) []K {
 // Play: https://go.dev/play/p/TPKAb6ILdHk
 func UniqKeys[K comparable, V any](in ...map[K]V) []K {
 	size := 0
-	for i := range in {
-		size += len(in[i])
+	for _, m := range in {
+		size += len(m)
 	}
 
 	seen := make(map[K]struct{}, size)
 	result := make([]K, 0)
 
-	for i := range in {
-		for k := range in[i] {
+	for _, m := range in {
+		for k := range m {
 			if _, exists := seen[k]; exists {
 				continue
 			}
@@ -53,13 +53,13 @@ func HasKey[K comparable, V any](in map[K]V, key K) bool {
 // Play: https://go.dev/play/p/nnRTQkzQfF6
 func Values[K comparable, V any](in ...map[K]V) []V {
 	size := 0
-	for i := range in {
-		size += len(in[i])
+	for _, m := range in {
+		size += len(m)
 	}
 	result := make([]V, 0, size)
 
-	for i := range in {
-		for _, v := range in[i] {
+	for _, m := range in {
+		for _, v := range m {
 			result = append(result, v)
 		}
 	}
@@ -71,15 +71,15 @@ func Values[K comparable, V any](in ...map[K]V) []V {
 // Play: https://go.dev/play/p/nf6bXMh7rM3
 func UniqValues[K, V comparable](in ...map[K]V) []V {
 	size := 0
-	for i := range in {
-		size += len(in[i])
+	for _, m := range in {
+		size += len(m)
 	}
 
 	seen := make(map[V]struct{}, size)
 	result := make([]V, 0)
 
-	for i := range in {
-		for _, v := range in[i] {
+	for _, m := range in {
+		for _, v := range m {
 			if _, exists := seen[v]; exists {
 				continue
 			}
@@ -116,9 +116,9 @@ func PickBy[K comparable, V any, Map ~map[K]V](in Map, predicate func(key K, val
 // Play: https://go.dev/play/p/R1imbuci9qU
 func PickByKeys[K comparable, V any, Map ~map[K]V](in Map, keys []K) Map {
 	r := Map{}
-	for i := range keys {
-		if v, ok := in[keys[i]]; ok {
-			r[keys[i]] = v
+	for _, key := range keys {
+		if v, ok := in[key]; ok {
+			r[key] = v
 		}
 	}
 	return r
@@ -155,8 +155,8 @@ func OmitByKeys[K comparable, V any, Map ~map[K]V](in Map, keys []K) Map {
 	for k, v := range in {
 		r[k] = v
 	}
-	for i := range keys {
-		delete(r, keys[i])
+	for _, key := range keys {
+		delete(r, key)
 	}
 	return r
 }
@@ -200,8 +200,8 @@ func ToPairs[K comparable, V any](in map[K]V) []Entry[K, V] {
 func FromEntries[K comparable, V any](entries []Entry[K, V]) map[K]V {
 	out := make(map[K]V, len(entries))
 
-	for i := range entries {
-		out[entries[i].Key] = entries[i].Value
+	for _, entry := range entries {
+		out[entry.Key] = entry.Value
 	}
 
 	return out
@@ -232,13 +232,13 @@ func Invert[K, V comparable](in map[K]V) map[V]K {
 // Play: https://go.dev/play/p/VhwfJOyxf5o
 func Assign[K comparable, V any, Map ~map[K]V](maps ...Map) Map {
 	count := 0
-	for i := range maps {
-		count += len(maps[i])
+	for _, m := range maps {
+		count += len(m)
 	}
 
 	out := make(Map, count)
-	for i := range maps {
-		for k, v := range maps[i] {
+	for _, m := range maps {
+		for k, v := range m {
 			out[k] = v
 		}
 	}
@@ -267,11 +267,14 @@ func ChunkEntries[K comparable, V any](m map[K]V, size int) []map[K]V {
 	result := make([]map[K]V, 0, chunksNum)
 
 	for k, v := range m {
-		if len(result) == 0 || len(result[len(result)-1]) == size {
-			result = append(result, make(map[K]V, size))
+		l := len(result)
+		if l != 0 && len(result[l-1]) != size {
+			result[l-1][k] = v
+			continue
 		}
-
-		result[len(result)-1][k] = v
+		chunk := make(map[K]V, size)
+		chunk[k] = v
+		result = append(result, chunk)
 	}
 
 	return result
